@@ -62,6 +62,11 @@ COPY images/cilium/init-container.sh \
      plugins/cilium-cni/cni-uninstall.sh \
        /tmp/install/${TARGETOS}/${TARGETARCH}
 
+RUN ln -sf /opt/cni/bin/cilium-cni /tmp/install/${TARGETOS}/${TARGETARCH}/usr/bin/cilium
+RUN ln -sf /opt/cni/bin/cilium-cni /tmp/install/${TARGETOS}/${TARGETARCH}/usr/bin/cilium-agent
+RUN ln -sf /opt/cni/bin/cilium-cni /tmp/install/${TARGETOS}/${TARGETARCH}/usr/bin/cilium-health
+RUN ln -sf /opt/cni/bin/cilium-cni /tmp/install/${TARGETOS}/${TARGETARCH}/usr/bin/cilium-bugtool
+
 #
 # Cilium runtime install.
 #

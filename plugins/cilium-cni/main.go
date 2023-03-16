@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/netip"
 	"os"
+	"path"
 	"runtime"
 	"sort"
 
@@ -50,6 +51,11 @@ import (
 	_ "github.com/cilium/cilium/plugins/cilium-cni/chaining/generic-veth"
 	_ "github.com/cilium/cilium/plugins/cilium-cni/chaining/portmap"
 	"github.com/cilium/cilium/plugins/cilium-cni/types"
+
+	bugtoolcmd "github.com/cilium/cilium/bugtool/cmd"
+	healthcmd "github.com/cilium/cilium/cilium-health/cmd"
+	ciliumcmd "github.com/cilium/cilium/cilium/cmd"
+	daemoncmd "github.com/cilium/cilium/daemon/cmd"
 )
 
 const (
@@ -77,6 +83,27 @@ type CmdState struct {
 }
 
 func main() {
+	switch name := path.Base(os.Args[0]); name {
+	case "cilium":
+		ciliumcmd.Execute()
+	case "cilium-agent":
+		daemoncmd.Execute()
+	case "cilium-health":
+		healthcmd.Execute()
+	case "cilium-bugtool":
+		if err := bugtoolcmd.BugtoolRootCmd.Execute(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	case "cilium-cni":
+		cniMain()
+	default:
+		fmt.Printf("Unknown command: %s\n", name)
+		os.Exit(1)
+	}
+}
+
+func cniMain() {
 	skel.PluginMain(cmdAdd,
 		cmdCheck,
 		cmdDel,
